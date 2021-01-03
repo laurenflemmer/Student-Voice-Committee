@@ -1,0 +1,264 @@
+---
+title: "Classroom Etiquette & Academic Experiences Survey"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+___________________________________________________________________________________________
+__________________________________________________________________________________________
+
+```{r, echo=FALSE, message=FALSE}
+hook_in <- function(x, options) {
+    x <- x[!grepl("^#\\s+", x)]
+    paste0("```r\n",
+          paste0(x, collapse="\n"),
+          "\n```")
+}
+knitr::knit_hooks$set(source = hook_in)
+
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(EMT)
+library(viridisLite)
+library(scales)
+library(frequency)
+
+theme_set(theme_minimal())
+opts <- options()
+
+options(ggplot2.continuous.colour="viridis")
+options(ggplot2.continuous.fill = "viridis")
+
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+etiquette <- read.csv(file = "/Users/laurenflemmer/Desktop/Projects/SVC/Data/Classroom Etiquette & Academic Experiences Survey Responses  - Sheet1.csv", skip = 1)
+
+names(etiquette)
+
+colorVec <- c( "#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99")
+```
+
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#RATE YOUR ACADEMIC EXPERIENCE AT UCR
+
+
+academicExperienceVec <- etiquette %>% select(How.do.you.rate.your.academic.experience.at.UCR.on.a.scale.of.1.to.5..with.1.being.poor.and.5.being.excellent....1..Poor..to.5..Excellent.)
+
+academicExperience <- as.data.frame(table(academicExperienceVec))
+academicExperience$Freq <- academicExperience$Freq/sum(academicExperience$Freq)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+#BAR PLOT
+
+academicExperiencePlot <- ggplot(data = academicExperience) +
+  geom_bar(mapping = aes(x = academicExperienceVec, y = Freq), fill = colorVec, position = "dodge", color = "light grey", stat = "identity") +
+  ggtitle("How do you rate your academic experience \n at UCR? (1 being poor and 5 being excellent)") +
+  xlab("Satsifaction Level") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust=.8, hjust=0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 14, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"))
+academicExperiencePlot
+
+```
+
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HAVE YOU EVER HAD A NEGATIVE EXPERIENCE WHILE TAKING A COURSE AT UCR
+
+negativeExperience <- etiquette %>% filter(Have.you.ever.had.negative.experiences.while.taking.a.course.at.UCR. != "NA") %>% select(Have.you.ever.had.negative.experiences.while.taking.a.course.at.UCR.)
+names(negativeExperience)[1] <- "negativeExperience"
+
+negativeExperience$negativeExperience <- ifelse(negativeExperience == 1, "Yes", "No")
+
+negativeExperience <- as.data.frame(table(negativeExperience))
+
+(51)/(51+59)
+(59)/(51+59)
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+#pie chart
+ggplot(data = negativeExperience) +
+          geom_bar(mapping = aes(x = "", fill = negativeExperience), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c("#B2DF8A", "#33A02C")) +
+          ggtitle(label = "Have you ever had negative experiences \n while taking a course at UCR?*") +
+          labs(caption = "*53% of responding UCR students have had negative \n experiences while taking a course at UCR") +
+          theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.2, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#PLEASE RATE YOUR INCLUSIVITY EXPERIENCE AT UCR FROM 1-5
+
+inclusivityRating <- etiquette %>% filter(Please.rate.your.inclusivity.experience.at.UCR.on.a.scale.of.1.to.5..with.1.being.poor.and.with.5.being.excellent....1..Poor..to.5..Excellent. != "NA") %>% select(Please.rate.your.inclusivity.experience.at.UCR.on.a.scale.of.1.to.5..with.1.being.poor.and.with.5.being.excellent....1..Poor..to.5..Excellent.)
+
+names(inclusivityRating)[1] <- "Rating"
+
+inclusivityRatingTable <- as.data.frame(table(inclusivityRating))
+inclusivityRatingTable$Freq <- inclusivityRatingTable$Freq/sum(inclusivityRatingTable$Freq)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+#BAR PLOT
+
+inclusivityExperiencePlot <- ggplot(data = inclusivityRatingTable) +
+  geom_bar(mapping = aes(x = inclusivityRating, y = Freq), fill = colorVec, position = "dodge", color = "light grey", stat = "identity") +
+  ggtitle("How do you rate your inclusivity experience \n at UCR? (1 being poor and 5 being excellent)") +
+  xlab("Inclusivity Rating") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust=.8, hjust=0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 14, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"))
+inclusivityExperiencePlot
+
+```
+
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HAVE YOU EVER FELT DISCRIMINATED AGAINST BY AN INSTRUCTOR OR STAFF
+
+discrimination <- etiquette %>% filter(Have.you.ever.felt.discriminated.against.by.an.instructor.or.academic.staff. != "NA") %>%
+  select(Have.you.ever.felt.discriminated.against.by.an.instructor.or.academic.staff.)
+
+names(discrimination)[1] <- "Response"
+discrimination$Response <- ifelse(discrimination$Response == 1,"Yes", "No")
+
+discriminationTable <- as.data.frame(table(discrimination))
+discriminationTable$Freq <- discriminationTable$Freq/sum(discriminationTable$Freq)
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+#pie chart
+ggplot(data = discrimination) +
+          geom_bar(mapping = aes(x = "", fill = Response), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c("#B2DF8A", "#33A02C")) +
+          ggtitle(label = "Have you ever felt discriminated against by an \n instructor or academic staff?*") +
+          labs(caption = "*5% of responding UCR students have had felt \n discriminated against by a staff member/instructor at UCR") +
+          theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.2, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+
+```
+
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HOW ACCEPTED DO YOU FEEL IN A UCR CLASSROOM
+
+accepted <- etiquette %>% filter(How.accepted.do.you.feel.in.a.UCR.classroom.as.a.whole.on.a.scale.of.1.to.5..with.1.being.poor.and.5.being.excellent....1..Poor..to.5..Excellent. != "NA") %>% select(How.accepted.do.you.feel.in.a.UCR.classroom.as.a.whole.on.a.scale.of.1.to.5..with.1.being.poor.and.5.being.excellent....1..Poor..to.5..Excellent.)
+
+names(accepted)[1] <- "acceptanceRating"
+
+acceptedFirstRow <- data.frame(accepted = 1, Freq = 0.0)
+accepted <- as.data.frame(table(accepted))
+
+accepted$Freq <- accepted$Freq/sum(accepted$Freq)
+
+accepted <- rbind(acceptedFirstRow, accepted)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+#BAR PLOT
+
+acceptanceRatingPlot <- ggplot(data = accepted) +
+  geom_bar(mapping = aes(x = accepted, y = Freq), fill = colorVec, position = "dodge", color = "light grey", stat = "identity") +
+  ggtitle("How accepted do you feel in a UCR classroom \n as a whole on a scale of 1 to 5? \n (1 being poor and 5 being excellent)") +
+  xlab("Acceptance Rating") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust=.8, hjust=0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 14, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"))
+acceptanceRatingPlot
+
+```
+
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HOW WELL DO YOU FEEL YOUR PROFESSORS HAVE MAINTAINED AN INCLUSIVE ENVIRONMENT
+
+inclusivityRating <- etiquette %>% filter(How.well.do.you.feel.that.your.instructors.have.been.able.to.maintain.an.inclusive.environment.on.a.scale.of.1.to.5..with.1.being.poor.and.5.being.excellent....1..Poor..to.5..Excellent. != "NA") %>% select(How.well.do.you.feel.that.your.instructors.have.been.able.to.maintain.an.inclusive.environment.on.a.scale.of.1.to.5..with.1.being.poor.and.5.being.excellent....1..Poor..to.5..Excellent.)
+
+inclusivityRating <- as.data.frame(table(inclusivityRating))
+
+inclusivityRating$Freq <- inclusivityRating$Freq/sum(inclusivityRating$Freq)
+names(inclusivityRating)[1] <- "Rating"
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+#BAR PLOT
+
+inclusivityRatingPlot <- ggplot(data = inclusivityRating) +
+  geom_bar(mapping = aes(x = Rating, y = Freq), fill = colorVec, position = "dodge", color = "light grey", stat = "identity") +
+  ggtitle("How well do you feel that your instructors have been able \n to maintain an inclusive environment on a scale of 1 to 5? \n (1 being poor and 5 being excellent)") +
+  xlab("Inclusivity Rating") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust=.8, hjust=0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 14, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"))
+inclusivityRatingPlot
+
+```
+
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#Training for professors (for Abby)
+
+training_nums <- as.data.frame(table(etiquette$Do.you.feel.that.additional.staff.TAs.faculty.administration.training.is.needed.in.areas.involving.etiquette.such.as..pronouns..disability..anti.blackness..microaggressions..etc..))
+
+training_nums$Var1 <- ifelse(training_nums$Var1 == 1, "Yes", "No")
+
+training_nums$Freq <- (training_nums$Freq / sum(training_nums$Freq))
+training_nums
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+#pie chart
+ggplot(data = training_nums) +
+          geom_bar(mapping = aes(x = "", fill = Var1), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c( "#A6CEE3", "#1F78B4")) +
+          ggtitle(label = "Do you feel that additional faculty/staff training \n is needed in areas involving etiquette such as: pronouns, \n disabilities, anti-blackness, microaggressions, etc.?*") +
+          labs(caption = "*53% of responding UCR students believe that \n additional training is needed in these areas") +
+          theme(aspect.ratio = , plot.title = element_text(hjust = 0.2, vjust = -2.25, size = 14, face = "bold"), legend.title = element_text(size = 10, face = "bold"), plot.caption = element_text(hjust = 0.05, vjust = 11, size = 8, face = "bold"), legend.text = element_text(size = 11)) +
+          labs(fill = "Response")
+
+```

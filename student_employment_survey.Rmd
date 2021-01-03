@@ -1,0 +1,278 @@
+---
+title: "Student Employment Survey"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+___________________________________________________________________________________________
+___________________________________________________________________________________________
+
+```{r setup-hook, echo=FALSE, message=FALSE}
+hook_in <- function(x, options) {
+    x <- x[!grepl("^#\\s+", x)]
+    paste0("```r\n",
+          paste0(x, collapse="\n"),
+          "\n```")
+}
+knitr::knit_hooks$set(source = hook_in)
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(EMT)
+library(viridisLite)
+library(scales)
+
+theme_set(theme_minimal())
+opts <- options()
+
+options(ggplot2.continuous.colour="viridis")
+options(ggplot2.continuous.fill = "viridis")
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+
+employment <- read.csv(file = "/Users/laurenflemmer/Desktop/Projects/SVC/Data/Student Employment Survey_November 24, 2020_13.10.csv")
+
+employment <- employment[3:89,]
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+#divide into groups
+
+
+
+allEmployed <- employment %>% filter(Q13 != "I have never been employed")
+
+currentlyEmployed <- employment %>% filter(Q13 == "Currently")
+
+previouslyEmployed <- employment %>% filter(Q13 == "Previously")
+
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+#Job satisfaction of student employees
+
+
+
+current <- data.frame(currentlyEmployed[2:30, "Q23"])
+previously <- data.frame(previouslyEmployed[2:29, "Q38"])
+
+current <- cbind(current, "current")
+previously <- cbind(previously, "previously")
+
+names(current) <- names(previously)
+all_workers <- rbind(current, previously)
+names(all_workers) = c("answer", "type")
+all_workers <- all_workers[-(55),]
+
+all_workers$answer <- factor(all_workers$answer, levels = c("Extremely satisfied", "Moderately satisfied", "Slightly satisfied", "Neither satisfied nor dissatisfied", "Slightly dissatisfied", "Moderately dissatisfied", "Extremely dissatisfied"))
+
+```
+
+______________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+#SATISFACTION OF ALL WORKERS
+ggplot(data = all_workers) +
+  geom_bar(mapping = aes(x = answer, fill = type), position = "dodge", color = "light grey") +
+  ggtitle("Job Satisfaction Among UCR Student Workers") +
+  xlab("How satisfied are you with your job?") +
+  theme(axis.text.x=element_text(color = "black", size=7, angle=25, vjust=.8, hjust=0.8), plot.title = element_text(hjust = 0.3, size = 12, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold")) +
+  scale_x_discrete(drop = FALSE) +
+  scale_fill_discrete(drop = FALSE, type = c( "#A6CEE3", "#1F78B4"))
+#c("Extremely satisfied", "Moderately satisfied", "Slightly satisfied", "Neither satisfied nor dissatisfied", "Slightly dissatisfied", "Moderately dissatisfied", "Extremely dissatisfied")
+
+
+```
+
+______________________________________________________________________________________________
+___________________________________________________________________________________________
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+
+#count values in combined table
+all_counts <- as.data.frame(table(all_workers$answer))
+all_counts$percentage <- all_counts$Freq/sum(all_counts$Freq)
+satisfied_percentage <- all_counts$percentage[1] + all_counts$percentage[2] + all_counts$percentage[3]
+satisfied_percentage
+
+#chi-square test 
+all_chi <- chisq.test(all_counts$Freq)
+all_chi
+
+
+all_workers$Satisfaction <- all_workers$answer
+
+brewer.pal(n = 7, name = 'Set3')
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+#pie chart of satisfaction among all students
+ggplot(data = all_workers) +
+          geom_bar(mapping = aes(x = "", fill = Satisfaction), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c( "#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F")) +
+          ggtitle("Job Satisfaction Among UCR Student Workers*") +
+  labs(caption = "*92.8% of responding current and previous UCR student workers \n are in some way satisfied with their job") +
+          theme(aspect.ratio = 1, plot.title = element_text(size = 14, face = "bold", hjust = -.5), legend.title = element_text(size = 11, face = "bold"), plot.caption = element_text(hjust = .9, vjust = 9, size = 9, face = "bold"))
+
+```
+
+______________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+#On-Campus vs. Off-Campus
+
+
+
+on_off_campus <- employment %>% filter(Q14 != "") %>% select(Q14)
+
+names(on_off_campus)[1] <- "Type"
+
+on_off_campus_table <- as.data.frame(table(on_off_campus))
+on_off_campus_percent <- as.data.frame(on_off_campus_table$Freq/sum(on_off_campus_table$Freq))
+
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+#pie chart or on vs off-campus workers
+ggplot(data = on_off_campus) +
+          geom_bar(mapping = aes(x = "", fill = Type), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c( "#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F")) +
+          ggtitle(label = "Employed UCR Students*") +
+          labs(caption = "*65% of responding UCR student workers work Off-Campus, while 35% work On-Campus") +
+          theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.5, vjust = -2.25, size = 18, face = "bold"), legend.title = element_text(size = 11, face = "bold"), plot.caption = element_text(hjust = 0.05, vjust = 11, size = 9, face = "bold"))
+
+
+```
+
+______________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+#Avg. starting salary vs. California wages
+
+
+curr_salaries <- employment %>% filter(Q14 != "") %>% select(Q17_1, Q14)
+
+
+#make first column the same
+names(curr_salaries)[1] <- "Starting_Wage"
+names(curr_salaries)[2] <- "Type"
+
+
+on_campus <- curr_salaries %>% filter(Type == "On-Campus", Starting_Wage != 0)
+off_campus <- curr_salaries %>% filter(Type =="Off-Campus", Starting_Wage != "")
+
+#avg salary for each group
+avg_on_campus <- mean(as.numeric(on_campus$Starting_Wage))
+avg_off_campus <- mean(as.numeric(off_campus$Starting_Wage))
+
+
+#plot of avg. salaries compared to CA avg.
+salary_df <- as.data.frame(c(avg_on_campus, avg_off_campus))
+names(salary_df)[1] <- "Wage"
+
+word_vec <- c("On-Campus", "Off-Campus")
+salary_df <- cbind(salary_df, word_vec)
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = salary_df, mapping = aes(x = reorder(word_vec, Wage), y = Wage)) +
+  geom_bar(stat = "identity", width = 0.5, fill = "#1F78B4", color = "grey") +
+  ggtitle("Avg. Starting Wage of UCR Students") +
+  ylim(c(0,17)) +
+  ylab("Hourly Wage (In $)") +
+  xlab("") +
+  theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.5, vjust = -2.25, size = 12, face = "bold"), plot.caption = element_text(hjust = 0.05, vjust = 11, size = 9, face = "bold"), axis.text.x=element_text(color = "black", size=10)) +
+  geom_hline(yintercept = 12, color = "red", linetype = 2, lwd = 1) +
+  annotate("text", x = 3.18, xend = 4, y = 11, label = "CA Minimum Wage: $12/hr", face = "bold", color = "red", size = 3)
+
+
+```
+
+______________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+#Work Study
+
+
+
+current_work_study <- employment %>% filter(Q15 != "") %>% select(Q15)
+previous_work_study <- employment %>% filter(Q34 != "") %>% select(Q34)
+
+#rename columns
+names(current_work_study)[1] <- "work_study"
+names(previous_work_study)[1] <- "work_study"
+
+#combine 2 dfs
+all_work_study <- rbind(current_work_study, previous_work_study)
+
+
+#get percentages for caption
+work_study_table <- as.data.frame(table(all_work_study))
+work_study_table$perc <- work_study_table$Freq/sum(work_study_table$Freq)
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+#pie chart
+ggplot(data = all_work_study) +
+          geom_bar(mapping = aes(x = "", fill = work_study), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c( "#A6CEE3", "#1F78B4")) +
+          ggtitle(label = "UCR Student Workers Participating in Work-Study*") +
+          labs(caption = "*24% of responding current and previous UCR student workers participate in work study") +
+          theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.2, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 11, face = "bold"), plot.caption = element_text(hjust = 0.05, vjust = 11, size = 10, face = "bold")) +
+          labs(fill = "Work Study?")
+
+
+```
+
+______________________________________________________________________________________________
+___________________________________________________________________________________________
+
+
+```{r, echo=FALSE, warning=FALSE}
+#Labor Unions
+
+curr_labor_union <- employment %>% filter(Q21 != "", Q13 == "Currently") %>% select(Q21)
+prev_labor_union <- employment %>% filter(Q21 != "", Q13 == "Previously") %>% select(Q21)
+
+```

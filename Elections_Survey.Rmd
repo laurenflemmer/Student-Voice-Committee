@@ -1,0 +1,202 @@
+---
+title: "Elections Survey"
+output:
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  dev = "svg",
+  fig.width = 12,
+  fig.height = 7
+)
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rlang)
+library(stopwords)
+library(tidytext)
+library(ggwordcloud)
+```
+
+
+```{r, echo=FALSE, include=FALSE} 
+elections <- read.csv(file = '/Users/laurenflemmer/Desktop/Projects/SVC/Data/ASUCR Elections Survey_February 4, 2021_15.48.csv', header = TRUE)
+elections <- elections[3:234,]
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+#How many people know how the ASUCR Election system/process works 
+
+know_process <- elections %>% filter(Q8 != "") %>% select(Q8)
+
+know_table <- as.data.frame(table(know_process))
+
+know_perc <- as.data.frame(c(82/(82 + 85), 85/(82 + 85)))
+names(know_perc)[1] <- "%"
+
+know_perc <- cbind(know_perc, c("No", "Yes"))
+names(know_perc)[1] <- "Response"
+
+```
+___
+```{r, echo=FALSE}
+#How many people know how the ASUCR Election system/process works 
+#pie chart
+ggplot(data = know_process) +
+          geom_bar(mapping = aes(x = "", fill = Q8), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c("#8AB17D", "#287271")) +
+          ggtitle(label = "Do you know how the ASUCR election system/process works?*") +
+          labs(caption = "*51% of responding UCR students know how the ASUCR \n election system/process works") +
+          theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.2, vjust = -2.25, size = 23, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 18, face = "bold"), legend.text = element_text(size = 14))
+
+```
+
+
+
+
+```{r, echo=FALSE, include=FALSE}
+#How do people rate the Integrity of the ASUCR Elections 
+
+integrity <- elections %>% filter(Q18_1 != "") %>% group_by(Q18_1) %>% select(Q18_1)
+integrity$Q18_1 <- as.integer(integrity$Q18_1)
+
+names(integrity)[1] <- "Response"
+
+
+integrity <- integrity[order(integrity$Response),]
+
+#color_vec = c("#7EA8BE", "#B4918F", "#064A89", "#6D597A", "#606C38", "#577590", "#EFB366", "#8AB17D","#EE8959", "#287271", "#B5838D")
+
+```
+
+___
+```{r, echo=FALSE}
+
+ggplot(data = integrity) +
+  geom_bar(mapping = aes(x = Response), position = "dodge", fill = "#287271") +
+  scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)) +
+  ggtitle("On a scale of 1-10, how do you rate the integrity \n of the ASUCR election process?") +
+  ylab("Count") +
+  theme(aspect.ratio = 1, plot.title = element_text(size = 23, face = "bold", hjust = 0), plot.caption = element_text(hjust = .9, vjust = 9, size = 9, face = "bold"), axis.text.x = element_text(size = 19, face = "bold"), axis.title.x = element_text(size = 17, face = "bold"), axis.text.y = element_text(size = 16, face = "bold"), axis.title.y = element_text(size = 17, face = "bold"), axis.ticks = element_blank())
+
+```
+
+
+
+```{r, echo=FALSE, include=FALSE}
+#Where do you get information about the ASUCR elections?
+
+information <- elections %>% filter(Q16 != "") %>% select(Q16)
+names(information)[1] <- "Source"
+
+info_table <- as.data.frame(table(information))
+frequencies <- as.data.frame(info_table$Freq/sum(info_table$Freq))
+
+info_col_vec <- c("#EFB366", "#8AB17D","#EE8959", "#B5838D", "#287271")
+```
+
+___
+```{r, echo=FALSE}
+
+ggplot(data = information) +
+          geom_bar(mapping = aes(x = "", fill = Source), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = info_col_vec) +
+          ggtitle("Where do you get information about the ASUCR elections?*") +
+          labs(caption = "*53% of responding UCR students get information \n about ASUCR elections via email") +
+          theme(aspect.ratio = 1, plot.title = element_text(size = 23, face = "bold", hjust = -.25), legend.title = element_text(size = 17, face = "bold"), plot.caption = element_text(hjust = .9, vjust = 9, size = 16, face = "bold"), legend.text = element_text(size = 14))
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+#Did you know that there are incentives given to vote in the ASUCR election?
+
+incentive <- elections %>% filter(Q12 != "") %>% select(Q12)
+names(incentive)[1] <- "Response"
+
+incentive_table <- as.data.frame(table(incentive))
+incentive_table$Freq <- incentive_table$Freq/sum(incentive_table$Freq)
+  
+```
+
+___
+
+```{r, echo=FALSE}
+
+ggplot(data = incentive) +
+          geom_bar(mapping = aes(x = "", fill = Response), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = c("#8AB17D", "#B5838D")) +
+          ggtitle(label = "Did you know that there are incentives given to \n vote in the ASUCR election?*") +
+          labs(caption = "*45.8% of responding UCR students did not know that incentives \n are given for voting in the ASUCR election") +
+          theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.2, vjust = -2.25, size = 23, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 18, face = "bold"), legend.text = element_text(size = 14))
+
+```
+
+
+
+```{r, echo=FALSE, include=FALSE}
+#What motivates you to vote in the ASUCR election?
+
+motivation <- elections %>% filter(Q17 != "") %>% select(Q17)
+names(motivation)[1] <- "Response"
+
+motivation_table <- as.data.frame(table(motivation))
+motivation_table$Freq <- motivation_table$Freq/sum(motivation_table$Freq)
+
+```
+
+___
+
+```{r, echo=FALSE}
+
+ggplot(data = motivation) +
+          geom_bar(mapping = aes(x = "", fill = Response), width = 1, color = "dark grey") +
+          labs(x = NULL, y = NULL) +
+          coord_polar(theta = "y", start = 0) +
+          theme_void() +
+          scale_x_discrete(drop = FALSE) +
+          scale_fill_discrete(drop = FALSE, type = info_col_vec) +
+          ggtitle(label = "What motivates you to vote in the ASUCR election?*") +
+          labs(caption = "*54% of responding UCR students vote in the ASUCR election \n because of the incentives offered") +
+          theme(aspect.ratio = 1, plot.title = element_text(hjust = 0, vjust = -2.25, size = 23, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0, vjust = 8, size = 18, face = "bold"), legend.text = element_text(size = 14))
+
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+#incentive (TEXT)
+
+incentive_text <- tibble(text = elections$Q19) %>% mutate(text = as.character(text))
+
+#tokenize
+incentive_token <- incentive_text %>% unnest_tokens(word, text, to_lower = TRUE)
+
+#remove stopwords
+incentive_no_stopwords <- incentive_token %>% anti_join(get_stopwords())
+
+incentive_no_stopwords <- as.data.frame(table(incentive_no_stopwords))
+
+incentive_stopwords_order <- no_stopwords[order(-incentive_no_stopwords$Freq),]
+
+incentive_stopwords_order <- incentive_stopwords_order[1:10,]
+
+```

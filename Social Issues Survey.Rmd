@@ -1,0 +1,171 @@
+---
+title: "SVC Social Issues Survey"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(EMT)
+library(viridisLite)
+library(scales)
+library(frequency)
+
+colorVec <- c( "#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99")
+
+social <- read.csv(file = '/Users/laurenflemmer/Desktop/Projects/SVC/Data/Social Issues Survey_March 26, 2021_14.43.csv', header = TRUE)
+social <- social[3:1079,]
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#DO YOU KEEP UP WITH POLITICS?
+
+politics <- social %>% filter(!is.na(Q4_1), Q4_1 != "") %>% select(Q4_1)
+politics <- as.data.frame(table(politics))
+politics$Freq <- politics$Freq/sum(politics$Freq)
+names(politics)[1] <- "Response"
+names(politics)[2] <- "Perc"
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+politicsPlot <- ggplot(data = politics) +
+  geom_bar(mapping = aes(x = Response, y = Perc), fill = colorVec, position = "dodge", color = "light grey", stat = "identity") + ggtitle("On a scale of 1-5, Do you keep up with politics?") +
+  xlab("Response") +
+  ylab("%") +
+  labs(subtitle = "(1- not invested in politics at all, 5- strongly invested in politics)") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust=.8, hjust=0.8), plot.title = element_text(hjust = 0.3, size = 16, face = "bold"), legend.title = element_text(size = 14, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3))
+politicsPlot
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#DO YOU THINK POLITICAL DISCUSSIONS IN CLASS ARE APPROPRIATE?
+
+inClass <- social %>% filter(!is.na(Q8), Q8 != "") %>% select(Q8)
+inClass <- as.data.frame(table(inClass))
+inClass$Freq <- inClass$Freq/sum(inClass$Freq)
+
+names(inClass)[1] <- "Response"
+
+count.data <- inClass %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.5*Freq)
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(count.data, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = round(Freq*100, digits = 1)), color = "white")+
+  scale_fill_manual(values = c("#B2DF8A", "#33A02C")) +
+  theme_void() +
+  ggtitle(label = "Do you think political discussions in class are appropriate?*") +
+          labs(caption = "*73.8% of responding UCR students believe that political discussions \n held in class are appropriate") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.2, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HAVE ANY OF YOUR PROFESSORS DISCUSSED CURRENT EVENTS IN CLASS?
+
+profCurrent <- social %>% filter(Q9 != "", !is.na(Q9)) %>% select(Q9)
+profCurrent <- as.data.frame(table(profCurrent))
+
+profCurrent$Freq <- profCurrent$Freq/sum(profCurrent$Freq)
+names(profCurrent)[1] <- "Response"
+
+count.data2 <- profCurrent %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.5*Freq)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+
+ggplot(count.data2, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = round(Freq*100, digits = 1)), color = "white")+
+  scale_fill_manual(values = c("#31769B", "#A6CEE3")) +
+  theme_void() +
+  ggtitle(label = "       Have any of your professors discussed current events in class?*") +
+          labs(caption = "*77.8% of responding UCR students report that one of their professors \n has discussed current events in class") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HAVE THESE DISCUSSIONS AFFECTED YOUR EDUCATIONAL ENVIRONMENT?
+
+affected <- social %>% filter(Q11 != "", !is.na(Q11)) %>% select(Q11)
+affected <- as.data.frame(table(affected))
+
+affected$Freq <- affected$Freq/sum(affected$Freq)
+names(affected)[1] <- "Response"
+
+count.data3 <- affected %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.75*(Freq))
+
+attach(count.data3)
+names(lab.ypos)[1] <- "lab.ypos"
+lab.ypos <- as.data.frame(sort(lab.ypos$lab.ypos, decreasing = TRUE))
+count.data3 <- cbind(Response, Freq, lab.ypos)
+names(count.data3)[3] <- "lab.ypos"
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(count.data3, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = round(Freq*100, digits = 1)), color = "white")+
+  scale_fill_manual(values = c("#F8A74A", "#FAC07D")) +
+  theme_void() +
+  ggtitle(label = "Have these discussions affected your educational environment?*") +
+          labs(caption = "*Of the students who have had a professor discuss current events in class, 28.3% \n  believe that these discussions have affected their educational environment") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#SPECIFICALLY HOW HAVE THESE DISCUSSIONS AFFECTED YOUR EDUCATIONAL ENVIRONMENT?
+
+affectedDetails <- social %>% filter(Q12 != "", !is.na(Q12)) %>% select(Q12)
+#write.csv(affectedDetails, "/Users/laurenflemmer/Desktop/details_social_issues", row.names = FALSE)
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#On a scale of Positive to Negative, how would you on average describe your experiences of in class political discussions?
+
+posOrNeg <- social %>% filter(Q13 != "", !is.na(Q13)) %>% select(Q13)
+posOrNeg <- as.data.frame(table(posOrNeg))
+posOrNeg$posOrNeg <- factor(posOrNeg$posOrNeg, levels = c("Extremely negative", "Somewhat negative", "Neither positive nor negative", "Somewhat positive", "Extremely Positive"))
+
+posOrNeg$Freq <- posOrNeg$Freq/sum(posOrNeg$Freq)
+names(posOrNeg)[1] <- "Response"
+names(posOrNeg)[2] <- "Perc"
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = posOrNeg) +
+  geom_bar(mapping = aes(x = Response, y = Perc), fill = "#A6CEE3", position = "dodge", color = "dark grey", stat = "identity") + ggtitle("How would you on average describe your experiences of in \n class political discussions?") +
+  xlab("Response") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=10, vjust=.8, hjust=0.8, angle = 10), plot.title = element_text(hjust = 0.0, size = 16, face = "bold"), legend.title = element_text(size = 14, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3))
+
+```

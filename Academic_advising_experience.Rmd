@@ -1,0 +1,253 @@
+---
+title: "Academic Advising Experience Survey"
+author: "Student Voice Committee"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(EMT)
+library(viridisLite)
+library(scales)
+library(frequency)
+
+advising <- read.csv(file = '/Users/laurenflemmer/Desktop/Projects/SVC/Academic Advising Experience Survey/Academic_Advising_Experience_Survey.csv', header = TRUE, skip = 2)
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HOW LONG DOES IT YAKE YOUR ACADEMIC ADVISOR TO RESPOND TO YOUR EMAILS
+
+respondTime <- advising %>% filter(X..ImportId...QID25.. != "", !is.na(X..ImportId...QID25..), X..ImportId...QID3.. != "", !is.na(X..ImportId...QID3..), X..ImportId...QID4.. != "", !is.na(X..ImportId...QID4..), X..ImportId...QID5.. != "", !is.na(X..ImportId...QID5..)) %>% select(X..ImportId...QID3.., X..ImportId...QID25.., X..ImportId...QID4..,  X..ImportId...QID5..)
+
+respondTime$X..ImportId...QID25..[respondTime$X..ImportId...QID25 == "I have never emailed my advisor"] <- "Haven't emailed"
+
+respondTime$X..ImportId...QID25.. <- factor(respondTime$X..ImportId...QID25.., levels = c("Less than one day", "One to two day", "Three to five days", "Weeks", "Never got a response ", "Inconsistent times", "Haven't emailed"))
+
+
+responseTable <- as.data.frame(table(respondTime))
+responseTable$Freq <- responseTable$Freq/sum(responseTable$Freq)
+names(responseTable)[1] <- "Response"
+names(responseTable)[2] <- "Perc"
+
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = respondTime) +
+  geom_bar(mapping = aes(x = X..ImportId...QID25.., y = ..count.., fill = X..ImportId...QID4..), stat = "count", position = "dodge") + ggtitle("On average, how long does it take for your advisor \n to respond to your emails?") +
+  xlab("Response") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust = 0.8, angle = 12), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+
+guides(fill=guide_legend(title="Years at UCR"))
+
+
+ggplot(data = respondTime) +
+  geom_bar(mapping = aes(x = X..ImportId...QID25.., y = ..count.., fill = X..ImportId...QID3..), stat = "count", position = "dodge") + ggtitle("On average, how long does it take for your advisor \n to respond to your emails?") +
+  xlab("Response") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust = 0.8, angle = 12), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+
+guides(fill=guide_legend(title="College"))
+
+
+ggplot(data = respondTime) +
+  geom_bar(mapping = aes(x = X..ImportId...QID25.., y = ..count.., fill = X..ImportId...QID5..), stat = "count", position = "dodge") + ggtitle("On average, how long does it take for your advisor \n to respond to your emails?") +
+  xlab("Response") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust = 0.8, angle = 12), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+
+guides(fill=guide_legend(title="Transfer Student?"))
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#ON A SCALE OF 1-10, HOW ACCESSIBLE IS YOUR ADVISOR?
+
+accessible <- advising %>% filter(X..ImportId...QID13_1.. != "", !is.na(X..ImportId...QID13_1..), X..ImportId...QID3.. != "", !is.na(X..ImportId...QID3..), X..ImportId...QID4.. != "", !is.na(X..ImportId...QID4..), X..ImportId...QID5.. != "", !is.na(X..ImportId...QID5..)) %>% select(X..ImportId...QID13_1.., X..ImportId...QID3.., X..ImportId...QID4..,  X..ImportId...QID5..)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = accessible) +
+  geom_bar(mapping = aes(x = X..ImportId...QID13_1.., y = ..count.., fill = X..ImportId...QID4..), stat = "count", position = "dodge") + ggtitle(" On a scale of 1-10, how accessible would \n you say your advisor is?") +
+  labs(subtitle = "(1= not accessible at all, 5= somewhat accessible, 10= very accessible)") +
+  xlab("Response") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+
+guides(fill=guide_legend(title="Years at UCR")) +
+scale_x_discrete(limits = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"), labels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
+
+
+ggplot(data = accessible) +
+  geom_bar(mapping = aes(x = X..ImportId...QID13_1.., y = ..count.., fill = X..ImportId...QID3..), stat = "count", position = "dodge") + ggtitle(" On a scale of 1-10, how accessible would \n you say your advisor is?") +
+  labs(subtitle = "(1= not accessible at all, 5= somewhat accessible, 10= very accessible)") +
+  xlab("Response") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+
+guides(fill=guide_legend(title="College")) +
+  scale_x_discrete(limits = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"), labels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
+
+
+ggplot(data = accessible) +
+  geom_bar(mapping = aes(x = X..ImportId...QID13_1.., y = ..count.., fill = X..ImportId...QID5..), stat = "count", position = "dodge") + ggtitle(" On a scale of 1-10, how accessible would you say your advisor is?") +
+  labs(subtitle = "(1= not accessible at all, 5= somewhat accessible, 10= very accessible)") +
+  xlab("Response") +
+  ylab("%") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+
+guides(fill=guide_legend(title="Transfer Student?")) +
+scale_x_discrete(limits = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"), labels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HOW HAVE YOU RECIEVED ACADEMIC ADVISING?
+
+howRecieved <- advising %>% filter(X..ImportId...QID8.. != "", !is.na(X..ImportId...QID8..), X..ImportId...QID3.. != "", !is.na(X..ImportId...QID3..), X..ImportId...QID4.. != "", !is.na(X..ImportId...QID4..), X..ImportId...QID5.. != "", !is.na(X..ImportId...QID5..)) %>% select(X..ImportId...QID8.., X..ImportId...QID3.., X..ImportId...QID4..,  X..ImportId...QID5..)
+
+transferRecieved <- howRecieved %>% filter(X..ImportId...QID5.. == "Yes") %>% select(X..ImportId...QID8..)
+transferRecieved <- as.data.frame(table(transferRecieved))
+transferRecieved$Freq <- transferRecieved$Freq/sum(transferRecieved$Freq)
+names(transferRecieved)[1] <- "Response"
+count.data1 <- transferRecieved %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+nontransferRecieved <- howRecieved %>% filter(X..ImportId...QID5.. != "Yes") %>% select(X..ImportId...QID8..)
+nontransferRecieved <- as.data.frame(table(nontransferRecieved))
+nontransferRecieved$Freq <- nontransferRecieved$Freq/sum(nontransferRecieved$Freq)
+names(nontransferRecieved)[1] <- "Response"
+count.data2 <- nontransferRecieved %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+firstRecieved <- howRecieved %>% filter(X..ImportId...QID4.. != "1 Years") %>% select(X..ImportId...QID8..)
+firstRecieved <- as.data.frame(table(firstRecieved))
+firstRecieved$Freq <- firstRecieved$Freq/sum(firstRecieved$Freq)
+names(firstRecieved)[1] <- "Response"
+count.data3 <- firstRecieved %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+secondRecieved <- howRecieved %>% filter(X..ImportId...QID4.. != "2 Years") %>% select(X..ImportId...QID8..)
+secondRecieved <- as.data.frame(table(secondRecieved))
+secondRecieved$Freq <- secondRecieved$Freq/sum(secondRecieved$Freq)
+names(secondRecieved)[1] <- "Response"
+count.data4 <- secondRecieved %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+thirdRecieved <- howRecieved %>% filter(X..ImportId...QID4.. != "3 Years") %>% select(X..ImportId...QID8..)
+thirdRecieved <- as.data.frame(table(thirdRecieved))
+thirdRecieved$Freq <- thirdRecieved$Freq/sum(thirdRecieved$Freq)
+names(thirdRecieved)[1] <- "Response"
+count.data5 <- thirdRecieved %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+fourthRecieved <- howRecieved %>% filter(X..ImportId...QID4.. != "4 Years") %>% select(X..ImportId...QID8..)
+fourthRecieved <- as.data.frame(table(fourthRecieved))
+fourthRecieved$Freq <- fourthRecieved$Freq/sum(fourthRecieved$Freq)
+names(fourthRecieved)[1] <- "Response"
+count.data6 <- fourthRecieved %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+fifthRecieved <- howRecieved %>% filter(X..ImportId...QID4.. != "5 or More Years") %>% select(X..ImportId...QID8..)
+fifthRecieved <- as.data.frame(table(fifthRecieved))
+fifthRecieved$Freq <- fifthRecieved$Freq/sum(fifthRecieved$Freq)
+names(fifthRecieved)[1] <- "Response"
+count.data7 <- fifthRecieved %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+#transfers
+ggplot(count.data1, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme_void() +
+  ggtitle(label = "How Transfer Students Recieve Academic Advising*") +
+          labs(caption = "*54.1% of UCR transfer students recieve their academic advising On-line") + theme(aspect.ratio = 1, plot.title = element_text(hjust = -0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#nontransfers
+ggplot(count.data2, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme_void() +
+  ggtitle(label = "How Non-Transfer Students Recieve Academic Advising*") +
+          labs(caption = "*42.8% of UCR Non-transfer students recieve their academic advising both On-campus and On-line") + theme(aspect.ratio = 1, plot.title = element_text(hjust = -0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+
+#FIRST YEAR
+ggplot(count.data3, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme_void() +
+  ggtitle(label = "How First-Year Students Recieve Academic Advising*") +
+          labs(caption = "*63.2% of First-Year UCR students recieve their academic advising both On-campus and On-line") + theme(aspect.ratio = 1, plot.title = element_text(hjust = -0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#SECOND YEAR
+ggplot(count.data4, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme_void() +
+  ggtitle(label = "How Second-Year Students Recieve Academic Advising*") +
+          labs(caption = "*44.8% of Second-Year UCR students recieve their academic advising On-line") + theme(aspect.ratio = 1, plot.title = element_text(hjust = -0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#THIRD YEAR
+ggplot(count.data5, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme_void() +
+  ggtitle(label = "How Third-Year Students Recieve Academic Advising*") +
+          labs(caption = "*46.5% of Third-Year UCR students recieve their academic advising On-line") + theme(aspect.ratio = 1, plot.title = element_text(hjust = -0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+
+#FOURTH YEAR
+ggplot(count.data6, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme_void() +
+  ggtitle(label = "How Fourth-Year Students Recieve Academic Advising*") +
+          labs(caption = "*45.6% of Fourth-Year UCR students recieve their academic advising On-line") + theme(aspect.ratio = 1, plot.title = element_text(hjust = -0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+
+#FIFTH+ YEAR
+ggplot(count.data7, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme_void() + 
+    ggtitle(label = "How Fifth-Year+ Students Recieve Academic Advising*") +
+  theme(aspect.ratio = 1, plot.title = element_text(hjust = -0.5, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+
+```

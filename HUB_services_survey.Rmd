@@ -1,0 +1,313 @@
+---
+title: "HUB Services Survey"
+author: "Lauren Flemmer"
+date: "5/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(EMT)
+library(viridisLite)
+library(scales)
+library(frequency)
+library(tidyr)
+library(splitstackshape)
+
+hub <- read.csv(file = '/Users/laurenflemmer/Desktop/Projects/SVC/HUB Services Survey/HUB Services Survey Results - Sheet1.csv', header = TRUE, skip = 1)
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHAT SERVICES DO YOU UTILIZE THE HUB FOR?
+
+services <- hub %>% filter(What.services.do.you.utilize.the.HUB.for...Select.all.that.apply. != "", !is.na(What.services.do.you.utilize.the.HUB.for...Select.all.that.apply.))
+
+services <- cSplit(services, "What.services.do.you.utilize.the.HUB.for...Select.all.that.apply.", ",", direction = "long")
+colorVector <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50", "#2A4849", "#9A9B73")
+```
+
+```{r, echo=FALSE, warning=FALSE}
+my.labels = c("Club meetings", "Dining", "Holding events", "Interacting with \n friends/group \n members", "Relaxing in \n between classes", "Studying")
+
+ggplot(data = services) +
+  geom_bar(mapping = aes(x = What.services.do.you.utilize.the.HUB.for...Select.all.that.apply.), stat = "count", position = "dodge", fill = colorVector) + ggtitle("What services do you utilize the HUB for?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) + scale_x_discrete(labels = my.labels)
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHAT SERVICES WOULD YOU LIKE TO SEE ADDED TO THE HUB?
+
+servicesAdd <- hub %>% filter(What.services.would.you.like.to.see.added.to.the.HUB...Select.all.that.apply. != "", !is.na(What.services.would.you.like.to.see.added.to.the.HUB...Select.all.that.apply.))
+servicesAdd <- cSplit(servicesAdd, "What.services.would.you.like.to.see.added.to.the.HUB...Select.all.that.apply.", ",", direction = "long")
+
+colorVector2 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50", "#2A4849")
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = servicesAdd) +
+  geom_bar(mapping = aes(x = What.services.would.you.like.to.see.added.to.the.HUB...Select.all.that.apply.), stat = "count", position = "dodge", fill = colorVector2) + ggtitle("What services do you utilize the HUB for?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#DO YOU SUPPORT INSTALLING LOCKERS ONLY IN THE HUB?
+
+lockers <- hub %>% filter(Do.you.support.installing.lockers.ONLY.in.the.HUB. != "", !is.na(Do.you.support.installing.lockers.ONLY.in.the.HUB.))
+
+lockers <- as.data.frame(table(lockers$Do.you.support.installing.lockers.ONLY.in.the.HUB.))
+names(lockers)[1] <- "Response"
+lockers$Freq <- lockers$Freq/sum(lockers$Freq)
+count.data1 <- lockers %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(count.data1, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#8BB174", "#426B69")) +
+  theme_void() +
+  ggtitle(label = "Do you support installing lockers ONLY in the HUB?*") +
+          labs(caption = "*49.7% of responding UCR students support installing lockers in the HUB") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHERE WOULD YOU wANT THE UNIVERSITY TO INSTALL MORE lOCKERS ON CAMPUS?
+
+lockerscampus <- hub %>% filter(Where.would.you.want.the.University.to.install.more.lockers.on.campus. != "", !is.na(Where.would.you.want.the.University.to.install.more.lockers.on.campus.))
+
+colorVector3 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50")
+labelsLocker = c("All over campus", "Inside the libraries", "Near the Student \n Recreation Center", "Other")
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = lockerscampus) +
+  geom_bar(mapping = aes(x = Where.would.you.want.the.University.to.install.more.lockers.on.campus.), stat = "count", position = "dodge", fill = colorVector3) + ggtitle("Where would you want the university to install more \n lockers on campus?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+ scale_x_discrete(labels = labelsLocker)
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#DO YOU SUPPORT INSTALLING MORE MICROWAVES ONLY IN THE HUB?
+
+microwaves <- hub %>% filter(Do.you.support.installing.more.microwaves.ONLY.in.the.HUB. != "", !is.na(Do.you.support.installing.more.microwaves.ONLY.in.the.HUB.))
+
+
+microwaves <- as.data.frame(table(microwaves$Do.you.support.installing.more.microwaves.ONLY.in.the.HUB.))
+names(microwaves)[1] <- "Response"
+microwaves$Freq <- microwaves$Freq/sum(microwaves$Freq)
+count.data2 <- microwaves %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(count.data2, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#8BB174", "#426B69")) +
+  theme_void() +
+  ggtitle(label = "Do you support installing more microwaves ONLY in the HUB?*") +
+          labs(caption = "*52.8% of responding UCR students support installing more microwaves in the HUB") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHERE WOULD YOU WANT THE UNIVERSITY TO INSTALL MORE MICROWAVES ON CAMPUS?
+
+microwavescampus <- hub %>% filter(Where.would.you.want.the.University.to.install.more.microwaves.on.campus. != "", !is.na(Where.would.you.want.the.University.to.install.more.microwaves.on.campus.))
+
+colorVector4 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50")
+labelsMicrowaves = c("All over campus", "Inside the libraries", "Near the Student \n Recreation Center", "Other")
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = microwavescampus) +
+  geom_bar(mapping = aes(x = Where.would.you.want.the.University.to.install.more.microwaves.on.campus.), stat = "count", position = "dodge", fill = colorVector4) + ggtitle("Where would you want the university to install more \n microwaves on campus?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+ scale_x_discrete(labels = labelsMicrowaves)
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#DO YOU SUPPORT INSTALLING MORE SEATING ONLY IN THE HUB?
+
+seating <- hub %>% filter(Do.you.support.installing.more.seating.ONLY.in.the.HUB. != "", !is.na(Do.you.support.installing.more.microwaves.ONLY.in.the.HUB.))
+
+
+seating <- as.data.frame(table(seating$Do.you.support.installing.more.seating.ONLY.in.the.HUB.))
+names(seating)[1] <- "Response"
+seating$Freq <- seating$Freq/sum(seating$Freq)
+count.data3 <- seating %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(count.data3, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#8BB174", "#426B69")) +
+  theme_void() +
+  ggtitle(label = "Do you support installing more seating ONLY in the HUB?*") +
+          labs(caption = "*52.8% of responding UCR students support installing more seating in the HUB") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHERE WOULD YOU WANT THE UNIVERSITY TO INSTALL MORE SEATING ON CAMPUS?
+
+seatingcampus <- hub %>% filter(Where.would.you.want.the.University.to.install.more.seating.on.campus. != "", !is.na(Where.would.you.want.the.University.to.install.more.seating.on.campus.))
+
+colorVector4 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50")
+labelsSeating = c("All over campus", "Inside the libraries", "Near the Student \n Recreation Center", "Other")
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = seatingcampus) +
+  geom_bar(mapping = aes(x = Where.would.you.want.the.University.to.install.more.seating.on.campus.), stat = "count", position = "dodge", fill = colorVector4) + ggtitle("Where would you want the university to install more \n microwaves on campus?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))+ scale_x_discrete(labels = labelsSeating)
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHAT KIND OF DESIGN WOULD YOU LIKE THE LOCKERS TO TAKE, SHOULD THEY BE INSTALLED ON CAMPUS?
+
+lockerDesign <- hub %>% filter(What.kind.of.design.would.you.like.for.the.lockers.to.take..should.they.be.installed.on.campus. != "", !is.na(What.kind.of.design.would.you.like.for.the.lockers.to.take..should.they.be.installed.on.campus.))
+
+colorVector5 <- c("#B5CA8D", "#8BB174", "#426B69")
+labelsLockers = c("Wardrobe lockers", "Box lockers", "Other")
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = lockerDesign) +
+  geom_bar(mapping = aes(x = What.kind.of.design.would.you.like.for.the.lockers.to.take..should.they.be.installed.on.campus.), stat = "count", position = "dodge", fill = colorVector5) + ggtitle("What kind of design would you like the lockers to take, \n should they be installed on campus?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))#+ scale_x_discrete(labels = labelsLockers)
+
+```
+
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#DO YOU SUPPORT INSTALLING MORE SEATING ONLY IN THE HUB?
+
+supportLocker <- hub %>% filter(Would.you.support.implementing.a.locker.service.where.you.would.be.loaned.a.locker.and.key.for.a.whole.academic.day.in.exchange.for.having.your.Student.ID.scanned. != "", !is.na(Would.you.support.implementing.a.locker.service.where.you.would.be.loaned.a.locker.and.key.for.a.whole.academic.day.in.exchange.for.having.your.Student.ID.scanned.))
+
+
+supportLocker <- as.data.frame(table(supportLocker$Would.you.support.implementing.a.locker.service.where.you.would.be.loaned.a.locker.and.key.for.a.whole.academic.day.in.exchange.for.having.your.Student.ID.scanned.))
+names(supportLocker)[1] <- "Response"
+supportLocker$Freq <- supportLocker$Freq/sum(supportLocker$Freq)
+count.data5 <- supportLocker %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(count.data5, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#8BB174", "#426B69")) +
+  theme_void() +
+  ggtitle(label = "Would you support implementing a locker service where \n you would be loaned a locker and key for a whole academic \n day in exchange for having your student ID scanned?*") +
+          labs(caption = "*93.1% of responding UCR students support implementing this service") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#DO YOU SUPPORT ADDING LOCKERS IN THE COMMUTER LOUNGE?
+
+lockerCommuter <- hub %>% filter(Would.you.support.adding.lockers.in.the.Commuter.Lounge.just.for.commuters.to.use. != "", !is.na(Would.you.support.adding.lockers.in.the.Commuter.Lounge.just.for.commuters.to.use.))
+
+
+lockerCommuter <- as.data.frame(table(lockerCommuter$Would.you.support.adding.lockers.in.the.Commuter.Lounge.just.for.commuters.to.use.))
+names(lockerCommuter)[1] <- "Response"
+lockerCommuter$Freq <- lockerCommuter$Freq/sum(lockerCommuter$Freq)
+count.data5 <- lockerCommuter %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(count.data5, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#8BB174", "#426B69")) +
+  theme_void() +
+  ggtitle(label = "Would you support adding lockers in the Commuter \n Lounge just for commuters to use?*") +
+          labs(caption = "*91.7% of responding UCR students support adding lockers in the commuter lounge") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHAT KIND OF DESIGN WOULD YOU LIKE THE LOCKERS TO TAKE, SHOULD THEY BE INSTALLED ON CAMPUS?
+
+chooseService <- hub %>% filter(Given.the.choice..which.services.out.of.lockers..microwaves..and.expanded.seating.would.you.MOST.like.to.see.installed.in.the.HUB. != "", !is.na(Given.the.choice..which.services.out.of.lockers..microwaves..and.expanded.seating.would.you.MOST.like.to.see.installed.in.the.HUB.))
+
+colorVector5 <- c("#B5CA8D", "#8BB174", "#426B69")
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(data = chooseService) +
+  geom_bar(mapping = aes(x = Given.the.choice..which.services.out.of.lockers..microwaves..and.expanded.seating.would.you.MOST.like.to.see.installed.in.the.HUB.), stat = "count", position = "dodge", fill = colorVector5) + ggtitle("Given the choice, which services out of lockers, \n microwaves, and expanded seating would you MOST \n like to see installed in the HUB?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7))
+
+```

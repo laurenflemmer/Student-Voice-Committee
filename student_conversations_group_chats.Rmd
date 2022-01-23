@@ -1,0 +1,388 @@
+---
+title: "Student Conversations and Group Chats Survey"
+author: "Lauren Flemmer"
+date: "5/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(EMT)
+library(viridisLite)
+library(scales)
+library(frequency)
+library(tidyr)
+library(splitstackshape)
+
+conversations <- read.csv(file = '/Users/laurenflemmer/Desktop/Projects/SVC/Data/Student Conversations and Group Chats Survey - Results.xlsx - Sheet0.csv', header = TRUE, skip = 1)
+colorVector <- c("#05A8AA", "#B8D5B8", "#E3D87E", "#DC602E", "#BC412B", "#C8B8DB")
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHAT DO YOU CONSIDER CHEATING?
+
+cheating <- conversations %>% filter(What.do.you.consider.cheating...Select.all.that.apply.. != "", !is.na(What.do.you.consider.cheating...Select.all.that.apply..))
+
+cheating <- cSplit(cheating, "What.do.you.consider.cheating...Select.all.that.apply..", ",", direction = "long")
+cheating <- cheating %>% filter(What.do.you.consider.cheating...Select.all.that.apply.. != "etc. )")
+cheating$What.do.you.consider.cheating...Select.all.that.apply.. <- gsub("e.g. Chegg and Course Hero", "", cheating$What.do.you.consider.cheating...Select.all.that.apply..)
+
+fac_name <- factor(cheating$What.do.you.consider.cheating...Select.all.that.apply..)
+levels(fac_name)[6] <- "Using online resources when not expressly permitted"
+
+table_cheating <- as.data.frame(table(cheating$What.do.you.consider.cheating...Select.all.that.apply..))
+names(table_cheating)[1] <- "Response"
+
+count.dataCheating <- table_cheating %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+my.labels <- c("Helping others on \n assignments", "Other", "Sharing exam \n questions", "Sharing HW \n answers", "Sharing PDFs for \n textbooks", "Using online \n resources when not \n expressly permitted")
+
+ggplot(data = cheating) +
+  geom_bar(mapping = aes(x = What.do.you.consider.cheating...Select.all.that.apply.., y = ..count..), stat = "count", position = "dodge", fill = colorVector) + ggtitle("What do you consider cheating?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=9, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) + scale_x_discrete(labels= my.labels)
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HAS THERE EVER BEEN ACADEMIC DISHONESTY IN A GROUP CHAT YOU HAVE BEEN A PART OF?
+
+beenDishonesty <- conversations %>% filter(!is.na(Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of.), Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of. != "")
+
+beenDishonestyCNAS <- beenDishonesty %>% filter(Which.college.are.you.affiliated.with. == "CNAS") %>% select(Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of.)
+beenDishonestyCNAS <- as.data.frame(table(beenDishonestyCNAS))
+names(beenDishonestyCNAS)[1] <- "Response"
+beenDishonestyCNAS$Freq <- beenDishonestyCNAS$Freq/sum(beenDishonestyCNAS$Freq)
+count.data1 <- beenDishonestyCNAS %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+beenDishonestyCHASS <- beenDishonesty %>% filter(Which.college.are.you.affiliated.with. == "CHASS") %>% select(Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of.)
+beenDishonestyCHASS <- as.data.frame(table(beenDishonestyCHASS))
+names(beenDishonestyCHASS)[1] <- "Response"
+beenDishonestyCHASS$Freq <- beenDishonestyCHASS$Freq/sum(beenDishonestyCHASS$Freq)
+count.data2 <- beenDishonestyCHASS %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+beenDishonestyBCOE <- beenDishonesty %>% filter(Which.college.are.you.affiliated.with. == "BCOE") %>% select(Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of.)
+beenDishonestyBCOE <- as.data.frame(table(beenDishonestyBCOE))
+names(beenDishonestyBCOE)[1] <- "Response"
+beenDishonestyBCOE$Freq <- beenDishonestyBCOE$Freq/sum(beenDishonestyBCOE$Freq)
+count.data3 <- beenDishonestyBCOE %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+beenDishonestySOBA <- beenDishonesty %>% filter(Which.college.are.you.affiliated.with. == "SOBA") %>% select(Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of.)
+beenDishonestySOBA <- as.data.frame(table(beenDishonestySOBA))
+names(beenDishonestySOBA)[1] <- "Response"
+beenDishonestySOBA$Freq <- beenDishonestySOBA$Freq/sum(beenDishonestySOBA$Freq)
+count.data4 <- beenDishonestySOBA %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+beenDishonestyGSOE <- beenDishonesty %>% filter(Which.college.are.you.affiliated.with. == "GSOE") %>% select(Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of.)
+beenDishonestyGSOE <- as.data.frame(table(beenDishonestyGSOE))
+names(beenDishonestyGSOE)[1] <- "Response"
+beenDishonestyGSOE$Freq <- beenDishonestyGSOE$Freq/sum(beenDishonestyGSOE$Freq)
+count.data5 <- beenDishonestyGSOE %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+beenDishonestySOPP <- beenDishonesty %>% filter(Which.college.are.you.affiliated.with. == "School of Public Policy") %>% select(Has.there.ever.been.academic.dishonesty.in.a.group.chat.you.have.been.a.part.of.)
+beenDishonestySOPP <- as.data.frame(table(beenDishonestySOPP))
+names(beenDishonestySOPP)[1] <- "Response"
+beenDishonestySOPP$Freq <- beenDishonestySOPP$Freq/sum(beenDishonestySOPP$Freq)
+count.data6 <- beenDishonestySOPP %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+#CNAS
+ggplot(count.data1, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#05A8AA", "#B8D5B8", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Has there ever been academic dishonesty in a group chat \n you have been a part of? [CNAS]*") +
+          labs(caption = "*19.6% of responding CNAS students have been part of a group chat \n where academic dishonesty has taken place") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#CHASS
+ggplot(count.data2, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#05A8AA", "#B8D5B8", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Has there ever been academic dishonesty in a group chat \n you have been a part of? [CHASS]*") +
+          labs(caption = "*10.1% of responding CHASS students have been part of a group chat \n where academic dishonesty has taken place") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#BCOE
+ggplot(count.data3, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#05A8AA", "#B8D5B8", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Has there ever been academic dishonesty in a group chat \n you have been a part of? [BCOE]*") +
+          labs(caption = "*8.7% of responding BCOE students have been part of a group chat \n where academic dishonesty has taken place") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#SOBA
+ggplot(count.data4, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#05A8AA", "#B8D5B8", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Has there ever been academic dishonesty in a group chat \n you have been a part of? [SOBA]*") +
+          labs(caption = "*23.8% of responding SOBA students have been part of a group chat \n where academic dishonesty has taken place") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#GSOE
+ggplot(count.data5, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#05A8AA", "#B8D5B8", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Has there ever been academic dishonesty in a group chat \n you have been a part of? [GSOE]*") +
+          labs(caption = "*0% of responding GSOE students have been part of a group chat \n where academic dishonesty has taken place") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#SOPP
+ggplot(count.data6, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#05A8AA", "#B8D5B8", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Has there ever been academic dishonesty in a group chat \n you have been a part of? [SOPP]*") +
+          labs(caption = "*30% of responding SOPP students have been part of a group chat \n where academic dishonesty has taken place") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HAVE YOU OR SOMEONE ELSE EVER BEEN PUNISHED FOR CHEATING BASED ON THE ACTIONS OF YOUR CLASSMATES
+
+punished <- conversations %>% filter(!is.na(Have.you.or.someone.else.ever.been.punished.for.cheating.based.on.the.actions.of.your.classmates.), Have.you.or.someone.else.ever.been.punished.for.cheating.based.on.the.actions.of.your.classmates. != "") %>% select(Have.you.or.someone.else.ever.been.punished.for.cheating.based.on.the.actions.of.your.classmates.)
+
+punished <- as.data.frame(table(punished))
+names(punished)[1] <- "Response"
+punished$Freq <- punished$Freq/sum(punished$Freq)
+
+count.dataPunished <- punished %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(count.dataPunished, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#B8D5B8", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Have you or someone else ever been punished for cheating \n based on the actions of your classmates?*") +
+          labs(caption = "*11.9% of responding UCR students either have been or \n have known someone who has been punished for cheating \n based on the actions of their classmates") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```
+
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#HAVE YOU BEEN ACADEMICALLY DISHONEST ON AN ASSIGNMENT OR AN EXAM?
+
+dishonestCNAS <- conversations %>% filter(!is.na(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..), Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes.. != "", Which.college.are.you.affiliated.with. == "CNAS") %>% select(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..)
+dishonestCNAS <- as.data.frame(table(dishonestCNAS))
+names(dishonestCNAS)[1] <- "Response"
+dishonestCNAS$Freq <- dishonestCNAS$Freq/sum(dishonestCNAS$Freq)
+count.dataD1 <- dishonestCNAS %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+dishonestCHASS <- conversations %>% filter(!is.na(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..), Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes.. != "", Which.college.are.you.affiliated.with. == "CHASS") %>% select(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..)
+dishonestCHASS <- as.data.frame(table(dishonestCHASS))
+names(dishonestCHASS)[1] <- "Response"
+dishonestCHASS$Freq <- dishonestCHASS$Freq/sum(dishonestCHASS$Freq)
+count.dataD2 <- dishonestCHASS %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+dishonestBCOE <- conversations %>% filter(!is.na(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..), Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes.. != "", Which.college.are.you.affiliated.with. == "BCOE") %>% select(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..)
+dishonestBCOE <- as.data.frame(table(dishonestBCOE))
+names(dishonestBCOE)[1] <- "Response"
+dishonestBCOE$Freq <- dishonestBCOE$Freq/sum(dishonestBCOE$Freq)
+count.dataD3 <- dishonestBCOE %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+dishonestSOBA <- conversations %>% filter(!is.na(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..), Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes.. != "", Which.college.are.you.affiliated.with. == "SOBA") %>% select(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..)
+dishonestSOBA <- as.data.frame(table(dishonestSOBA))
+names(dishonestSOBA)[1] <- "Response"
+dishonestSOBA$Freq <- dishonestSOBA$Freq/sum(dishonestSOBA$Freq)
+count.dataD4 <- dishonestSOBA %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+dishonestGSOE <- conversations %>% filter(!is.na(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..), Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes.. != "", Which.college.are.you.affiliated.with. == "GSOE") %>% select(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..)
+dishonestGSOE <- as.data.frame(table(dishonestGSOE))
+names(dishonestGSOE)[1] <- "Response"
+dishonestGSOE$Freq <- dishonestGSOE$Freq/sum(dishonestGSOE$Freq)
+count.dataD5 <- dishonestGSOE %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+dishonestSOPP <- conversations %>% filter(!is.na(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..), Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes.. != "", Which.college.are.you.affiliated.with. == "School of Public Policy") %>% select(Have.you.been.academically.dishonest.on.an.assignment.or.an.exam...Remember..this.survey.is.anonymous.and.the.data.collected.will.only.be.used.for.educational.purposes..)
+dishonestSOPP <- as.data.frame(table(dishonestSOPP))
+names(dishonestSOPP)[1] <- "Response"
+dishonestSOPP$Freq <- dishonestSOPP$Freq/sum(dishonestSOPP$Freq)
+count.dataD6 <- dishonestSOPP %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+#CNAS
+ggplot(count.dataD1, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#B8D5B8", "#05A8AA", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Have you been academically dishonest on an \n assignment or an exam? [CNAS]*") +
+          labs(caption = "*16.1% of responding CNAS students have been academically \n dishonest on an assignment or exam") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#CHASS
+ggplot(count.dataD2, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#B8D5B8", "#05A8AA", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Have you been academically dishonest on an \n assignment or an exam? [CHASS]*") +
+          labs(caption = "*10.5% of responding CHASS students have been academically \n dishonest on an assignment or exam") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#BCOE
+ggplot(count.dataD3, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#B8D5B8", "#05A8AA", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Have you been academically dishonest on an \n assignment or an exam? [BCOE]*") +
+          labs(caption = "*5.9% of responding BCOE students have been academically \n dishonest on an assignment or exam") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#SOBA
+ggplot(count.dataD4, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#B8D5B8", "#05A8AA", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Have you been academically dishonest on an \n assignment or an exam? [SOBA]*") +
+          labs(caption = "*11.8% of responding SOBA students have been academically \n dishonest on an assignment or exam") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#GSOE
+ggplot(count.dataD5, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#B8D5B8", "#05A8AA", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Have you been academically dishonest on an \n assignment or an exam? [GSOE]*") +
+          labs(caption = "*8.3% of responding GSOE students have been academically \n dishonest on an assignment or exam") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+#SOPP
+ggplot(count.dataD6, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#05A8AA", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Have you been academically dishonest on an \n assignment or an exam? [SOPP]*") +
+          labs(caption = "*22.2% of responding SOPP students have been academically \n dishonest on an assignment or exam") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#WHAT HAVE YOUR PAST PROFESSORS DONE IN ORDER TO COMBAT ONLINE CHEATING?
+
+combat <- conversations %>% filter(What.have.your.past.professors.done.in.order.to.combat.online.cheating...Select.all.that.apply.. != "", !is.na(What.have.your.past.professors.done.in.order.to.combat.online.cheating...Select.all.that.apply..))
+
+combat <- cSplit(combat, "What.have.your.past.professors.done.in.order.to.combat.online.cheating...Select.all.that.apply..", ",", direction = "long")
+
+table_combat <- as.data.frame(table(combat$What.have.your.past.professors.done.in.order.to.combat.online.cheating...Select.all.that.apply..))
+table_combat$Freq <- table_combat$Freq/sum(table_combat$Freq)
+names(table_combat)[1] <- "Response"
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+my.labels1 <- c("Group chats \n were prohibited \n for the class", "Nothing was done \n to combat \n online cheating", "Open Notes Exam \n with harder \n questions", "Other", "Proctored exam", "Professors were \n included in the \n groupchat", "TA’s were \n included in \n the groupchat")
+vecColor <- c("#05A8AA", "#B8D5B8", "#E3D87E", "#DC602E", "#BC412B", "#C8B8DB", "#57886C")
+
+ggplot(data = combat) +
+  geom_bar(mapping = aes(x = What.have.your.past.professors.done.in.order.to.combat.online.cheating...Select.all.that.apply.., y = ..count..), stat = "count", position = "dodge", fill = vecColor) + ggtitle("What have your past professors done in order to \n combat online cheating?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=8, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) + scale_x_discrete(labels= my.labels1)
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#SHOULD COURSE INSTRUCTORS PROMOTE THE USE AND CREATION OF GROUP CHATS?
+
+promote <- conversations %>% filter(Should.course.instructors..Faculty.and.Teaching.Assistants..promote.the.creation.and.usage.of.group.chats. != "", !is.na(Should.course.instructors..Faculty.and.Teaching.Assistants..promote.the.creation.and.usage.of.group.chats.))
+promote <- promote$Should.course.instructors..Faculty.and.Teaching.Assistants..promote.the.creation.and.usage.of.group.chats.
+
+promoteTable <- as.data.frame(table(promote))
+names(promoteTable)[1] <- "Response"
+
+count.dataPromote <- promoteTable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(count.dataPromote, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.3),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = c("#B8D5B8", "#05A8AA", "#E3D87E")) +
+  theme_void() +
+  ggtitle(label = "Should course instructors (Faculty and Teaching Assistants) \n promote the creation and usage of group chats?*") +
+          labs(caption = "*75.5% of responding UCR students believe that course instructors should promote \n the creation and usage of group chats") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 15, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 11))
+
+```

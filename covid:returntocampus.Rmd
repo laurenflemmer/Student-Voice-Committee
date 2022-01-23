@@ -1,0 +1,1013 @@
+---
+title: "Covid-19/Return to Campus Survey"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+
+covid <- read.csv(file = '/Users/laurenflemmer/Desktop/Projects/SVC/Data/covid:returntocampus.csv', header = TRUE, skip=2)
+
+colorVector <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50", "#2A4849", "#9A9B73")
+colorVector2 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50", "#2A4849")
+
+```
+
+
+# Q7: How many of your Fall 2021 classes are on-campus?
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+colorVector1 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50", "#2A4849")
+
+classesOnCampus <- covid %>% filter(X..ImportId...QID7.. != '') %>% select(X..ImportId...QID7..)
+names(classesOnCampus)[1] <- "Response"
+
+classesOnCampusPerc <- as.data.frame(table(classesOnCampus))
+classesOnCampusPerc$Freq <- classesOnCampusPerc$Freq/sum(classesOnCampusPerc$Freq)
+count.data1 <- classesOnCampusPerc %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(classesOnCampusPerc)[1] <- "Response"
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data = classesOnCampusPerc, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How many of your Fall 2021 classes are on-campus?") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+```
+
+# Q8: Do you believe UCR took adequate steps to return to campus (including hybrid/remote classes, vaccine requirements, test availability)
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+colorVector2 <- c("#B5CA8D", "#8BB174")
+
+adequateSteps <- covid %>% filter(X..ImportId...QID8.. != '') %>% select(X..ImportId...QID8..)
+names(adequateSteps)[1] <- "Response"
+
+adequateSteps <- as.data.frame(table(adequateSteps))
+adequateSteps$Freq <- adequateSteps$Freq/sum(adequateSteps$Freq)
+count.data1 <- adequateSteps %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data1)[1] <- "Response"
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(count.data1, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector2) +
+  theme_void() +
+  ggtitle(label = "Do you believe UCR took adequate steps to \n return to campus? (including hybrid/remote classes, \n vaccine requirements, test availability)*") +
+          labs(caption = "*85.6% of responding students believe that UCR took adequate steps \n for the return to campus") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+```
+
+#Q9: How comfortable do you feel regarding UCR’s decision to return to in-person? (1 being not comfortable at all, 5 being completely comfortable)
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+#OVERALL
+allComfortable <- covid %>% filter(X..ImportId...QID9_1.. != "") %>% select(X..ImportId...QID9_1..)
+allComfortable <- as.data.frame(table(allComfortable))
+allComfortable$Freq <- allComfortable$Freq/sum(allComfortable$Freq)
+count.data6 <- allComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data6)[1] <- "Response"
+
+#CHASS
+chassComfortable <- covid %>% filter(X..ImportId...QID3.. == "CHASS") %>% select(X..ImportId...QID9_1..)
+chassComfortable <- as.data.frame(table(chassComfortable))
+chassComfortable$Freq <- chassComfortable$Freq/sum(chassComfortable$Freq)
+count.data2 <- chassComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(chassComfortable)[1] <- "Response"
+#BCOE
+bcoeComfortable <- covid %>% filter(X..ImportId...QID3.. == "BCOE") %>% select(X..ImportId...QID9_1..)
+bcoeComfortable <- as.data.frame(table(bcoeComfortable))
+bcoeComfortable$Freq <- bcoeComfortable$Freq/sum(bcoeComfortable$Freq)
+count.data3 <- bcoeComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(bcoeComfortable)[1] <- "Response"
+#CNAS
+cnasComfortable <- covid %>% filter(X..ImportId...QID3.. == "CNAS") %>% select(X..ImportId...QID9_1..)
+cnasComfortable <- as.data.frame(table(cnasComfortable))
+cnasComfortable$Freq <- cnasComfortable$Freq/sum(cnasComfortable$Freq)
+count.data4 <- cnasComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(cnasComfortable)[1] <- "Response"
+#School of Business
+sobComfortable <- covid %>% filter(X..ImportId...QID3.. == "School of Business") %>% select(X..ImportId...QID9_1..)
+sobComfortable <- as.data.frame(table(sobComfortable))
+sobComfortable$Freq <- sobComfortable$Freq/sum(sobComfortable$Freq)
+count.data4 <- sobComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(sobComfortable)[1] <- "Response"
+#School of Education
+soeComfortable <- covid %>% filter(X..ImportId...QID3.. == "School of Education") %>% select(X..ImportId...QID9_1..)
+soeComfortable <- as.data.frame(table(soeComfortable))
+soeComfortable$Freq <- soeComfortable$Freq/sum(soeComfortable$Freq)
+count.data4 <- soeComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(soeComfortable)[1] <- "Response"
+#School of Public Policy
+soppComfortable <- covid %>% filter(X..ImportId...QID3.. == "School of Public Policy") %>% select(X..ImportId...QID9_1..)
+soppComfortable <- as.data.frame(table(soppComfortable))
+soppComfortable$Freq <- soppComfortable$Freq/sum(soppComfortable$Freq)
+count.data4 <- soppComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(soppComfortable)[1] <- "Response"
+
+
+#first-year
+firstYearComfortable <- covid %>% filter(X..ImportId...QID4.. == "1st") %>% select(X..ImportId...QID9_1..)
+firstYearComfortable <- as.data.frame(table(firstYearComfortable))
+firstYearComfortable$Freq <- firstYearComfortable$Freq/sum(firstYearComfortable$Freq)
+count.data2 <- firstYearComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(firstYearComfortable)[1] <- "Response"
+#second-year
+secondYearComfortable <- covid %>% filter(X..ImportId...QID4.. == "2nd") %>% select(X..ImportId...QID9_1..)
+secondYearComfortable <- as.data.frame(table(secondYearComfortable))
+secondYearComfortable$Freq <- secondYearComfortable$Freq/sum(secondYearComfortable$Freq)
+count.data2 <- secondYearComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(secondYearComfortable)[1] <- "Response"
+#third-year
+thirdYearComfortable <- covid %>% filter(X..ImportId...QID4.. == "3rd") %>% select(X..ImportId...QID9_1..)
+thirdYearComfortable <- as.data.frame(table(thirdYearComfortable))
+thirdYearComfortable$Freq <- thirdYearComfortable$Freq/sum(thirdYearComfortable$Freq)
+count.data2 <- thirdYearComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(thirdYearComfortable)[1] <- "Response"
+#fourth-year
+fourthYearComfortable <- covid %>% filter(X..ImportId...QID4.. == "4th") %>% select(X..ImportId...QID9_1..)
+fourthYearComfortable <- as.data.frame(table(fourthYearComfortable))
+fourthYearComfortable$Freq <- fourthYearComfortable$Freq/sum(fourthYearComfortable$Freq)
+count.data2 <- fourthYearComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(fourthYearComfortable)[1] <- "Response"
+#fifth-year+
+fifthYearComfortable <- covid %>% filter(X..ImportId...QID4.. == "5th (+)") %>% select(X..ImportId...QID9_1..)
+fifthYearComfortable <- as.data.frame(table(fifthYearComfortable))
+fifthYearComfortable$Freq <- fifthYearComfortable$Freq/sum(fifthYearComfortable$Freq)
+count.data2 <- fifthYearComfortable %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(fifthYearComfortable)[1] <- "Response"
+```
+
+```{r, echo=FALSE, warning=FALSE}
+colorVector1 <- c("#2A4849", "#2A4849","#426B69", "#222E50", "#8BB174")
+colorVector <- c("#222E50", "#2A4849","#426B69", "#8BB174", "#B5CA8D")
+
+
+#OVERALL
+ggplot(data = count.data6, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [ALL RESPONDING STUDENTS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#CHASS
+ggplot(data = chassComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [CHASS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#BCOE
+ggplot(data = bcoeComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [BCOE]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#CNAS
+ggplot(data = cnasComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [CNAS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#School of Business
+ggplot(data = sobComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [School of Business]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#School of Education
+ggplot(data = soeComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [School of Education]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#School of Public Policy
+ggplot(data = soppComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [School of Public Policy]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+
+#first-year
+ggplot(data = firstYearComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [First-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#second-year
+ggplot(data = secondYearComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [Second-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+#third-year
+ggplot(data = thirdYearComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [Third-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+#fourth-year
+ggplot(data = fourthYearComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [Fourth-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+#fifth-year+
+ggplot(data = fifthYearComfortable, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector1, stat = "identity") + ggtitle("How comfortable do you feel regarding UCR’s decision to \n return to in-person? (1 being not comfortable at all, 5 being \n completely comfortable) [Fifth-Year+ Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 15, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+```
+
+#Q11: What additional resources do you want available on campus? (Select all that apply)
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+covidNew <- covid
+covid <- covid %>% 
+    mutate(X..ImportId...QID12.. = strsplit(as.character(X..ImportId...QID12..), ",")) %>% 
+    unnest(X..ImportId...QID12..)
+
+resources <- covid %>% filter(X..ImportId...QID12.. != '') %>% select(X..ImportId...QID12..)
+names(resources)[1] <- "Response"
+
+resources <- as.data.frame(table(resources))
+resources$Freq <- resources$Freq/sum(resources$Freq)
+count.data1 <- resources %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data1)[1] <- "Response"
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+colorVector3 <- c("#B5CA8D", "#8BB174", "#9A9B73", "#2A4849")
+                 
+ggplot(count.data1, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "dark grey") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "white", face = "bold", size = 4.5)+
+  scale_fill_manual(values = colorVector3) +
+  theme_void() +
+  ggtitle(label = "What additional resources do you want available on campus? \n (Select all that apply)") +
+           theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 17, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+```
+
+#Q13: Has remote learning and/or Covid-19 restrictions negatively impacted your mental health (including feelings of sadness, depression, loneliness, stress, etc.)
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+colorVector1 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50", "#2A4849")
+colorVector <- c("#222E50", "#2A4849","#426B69", "#8BB174", "#B5CA8D")
+
+#overall
+mental_overall <- covid %>% filter(X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+mental_overall <- as.data.frame(table(mental_overall))
+mental_overall$Freq <- mental_overall$Freq/sum(mental_overall$Freq)
+count.data.overallmental <- mental_overall %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.overallmental)[1] <- "Response"
+
+#CHASS
+chassNegativeImpact <- covid %>% filter(X..ImportId...QID3.. == "CHASS") %>% select(X..ImportId...QID14..)
+chassNegativeImpact <- as.data.frame(table(chassNegativeImpact))
+chassNegativeImpact$Freq <- chassNegativeImpact$Freq/sum(chassNegativeImpact$Freq)
+count.data.Chass <- chassNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.Chass)[1] <- "Response"
+#BCOE
+bcoeNegativeImpact <- covid %>% filter(X..ImportId...QID3.. == "BCOE", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+bcoeNegativeImpact <- as.data.frame(table(bcoeNegativeImpact))
+bcoeNegativeImpact$Freq <- bcoeNegativeImpact$Freq/sum(bcoeNegativeImpact$Freq)
+count.data.bcoe <- bcoeNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.bcoe)[1] <- "Response"
+#CNAS
+cnasNegativeImpact <- covid %>% filter(X..ImportId...QID3.. == "CNAS", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+cnasNegativeImpact <- as.data.frame(table(cnasNegativeImpact))
+cnasNegativeImpact$Freq <- cnasNegativeImpact$Freq/sum(cnasNegativeImpact$Freq)
+count.data.cnas <- cnasNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.cnas)[1] <- "Response"
+#School of Business
+sobNegativeImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Business", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+sobNegativeImpact <- as.data.frame(table(sobNegativeImpact))
+sobNegativeImpact$Freq <- sobNegativeImpact$Freq/sum(sobNegativeImpact$Freq)
+count.data.sob <- sobNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.sob)[1] <- "Response"
+#School of Education
+soeNegativeImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Education", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+soeNegativeImpact <- as.data.frame(table(soeNegativeImpact))
+soeNegativeImpact$Freq <- soeNegativeImpact$Freq/sum(soeNegativeImpact$Freq)
+count.data.soe <- soeNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.soe)[1] <- "Response"
+#School of Public Policy
+soppNegativeImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Public Policy", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+soppNegativeImpact <- as.data.frame(table(soppNegativeImpact))
+soppNegativeImpact$Freq <- soppNegativeImpact$Freq/sum(soppNegativeImpact$Freq)
+count.data.sopp <- soppNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.sopp)[1] <- "Response"
+
+
+#first-year
+firstYearNegativeImpact <- covid %>% filter(X..ImportId...QID4.. == "1st", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+firstYearNegativeImpact <- as.data.frame(table(firstYearNegativeImpact))
+firstYearNegativeImpact$Freq <- firstYearNegativeImpact$Freq/sum(firstYearNegativeImpact$Freq)
+count.data.first <- firstYearNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.first)[1] <- "Response"
+#second-year
+secondYearNegativeImpact <- covid %>% filter(X..ImportId...QID4.. == "2nd", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+secondYearNegativeImpact <- as.data.frame(table(secondYearNegativeImpact))
+secondYearNegativeImpact$Freq <- secondYearNegativeImpact$Freq/sum(secondYearNegativeImpact$Freq)
+count.data.second <- secondYearNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.second)[1] <- "Response"
+#third-year
+thirdYearNegativeImpact <- covid %>% filter(X..ImportId...QID4.. == "3rd", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+thirdYearNegativeImpact <- as.data.frame(table(thirdYearNegativeImpact))
+thirdYearNegativeImpact$Freq <- thirdYearNegativeImpact$Freq/sum(thirdYearNegativeImpact$Freq)
+count.data.third <- thirdYearNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.third)[1] <- "Response"
+#fourth-year
+fourthYearNegativeImpact <- covid %>% filter(X..ImportId...QID4.. == "4th", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+fourthYearNegativeImpact <- as.data.frame(table(fourthYearNegativeImpact))
+fourthYearNegativeImpact$Freq <- fourthYearNegativeImpact$Freq/sum(fourthYearNegativeImpact$Freq)
+count.data.fourth <- fourthYearNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.fourth)[1] <- "Response"
+#fifth-year+
+fifthYearNegativeImpact <- covid %>% filter(X..ImportId...QID4.. == "5th (+)", X..ImportId...QID14.. != "") %>% select(X..ImportId...QID14..)
+fifthYearNegativeImpact <- as.data.frame(table(fifthYearNegativeImpact))
+fifthYearNegativeImpact$Freq <- fifthYearNegativeImpact$Freq/sum(fifthYearNegativeImpact$Freq)
+count.data.fifth <- fifthYearNegativeImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.fifth)[1] <- "Response"
+```
+
+```{r, echo=FALSE, warning=FALSE}
+colorVector5 <- c("#B5CA8D", "#8BB174")
+colorVector6 <- c("#426B69", "#222E50")
+
+#overall
+ggplot(count.data.overallmental, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector5) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings of \n sadness, depression, loneliness, stress, etc.) \n [ALL RESPONDING STUDENTS]*") +
+          labs(caption = "*59.4% of responding UCR students believe that remote learning and/or \n Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#CHASS
+ggplot(count.data.Chass, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector5) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings of \n sadness, depression, loneliness, stress, etc.) [CHASS]*") +
+          labs(caption = "*59.2% of responding CHASS students believe that remote learning and/or \n Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#BCOE
+ggplot(count.data.bcoe, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector5) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings of \n sadness, depression, loneliness, stress, etc.) [BCOE]*") +
+          labs(caption = "*57.3% of responding BCOE students believe that remote learning and/or \n Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#CNAS
+ggplot(count.data.cnas, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector5) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings of \n sadness, depression, loneliness, stress, etc.) [CNAS]*") +
+          labs(caption = "*64.7% of responding CNAS students believe that remote learning and/or \n Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#School of Business
+ggplot(count.data.sob, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector5) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [School of Business]*") +
+          labs(caption = "*49.8% of responding School of Business students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#School of Education
+ggplot(count.data.soe, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector5) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [School of Education]*") +
+          labs(caption = "*44.2% of responding School of Education students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#School of Public Policy
+ggplot(count.data.sopp, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "black", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector5) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [School of Public Policy]*") +
+          labs(caption = "*68.4% of responding School of Public Policy students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+
+#first-years
+ggplot(count.data.first, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "white", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector6) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [First-Year Students]*") +
+          labs(caption = "*51.1% of responding first-year students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#second-years
+ggplot(count.data.second, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "white", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector6) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [Second-Year Students]*") +
+          labs(caption = "*63.1% of responding second-year students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#third-years
+ggplot(count.data.third, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "white", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector6) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [Third-Year Students]*") +
+          labs(caption = "*63.3% of responding third-year students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#fourth-years
+ggplot(count.data.fourth, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "white", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector6) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [Fourth-Year Students]*") +
+          labs(caption = "*66.1% of responding fourth-year students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+
+#fifth-years
+ggplot(count.data.fifth, aes(x = "", y = Freq, fill = Response)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+    geom_text(aes(label = paste(round(Freq / sum(Freq) * 100, 1), "%"), x = 1.2),
+            position = position_stack(vjust = .5), color = "white", face = "bold", size = 4)+
+  scale_fill_manual(values = colorVector6) +
+  theme_void() +
+  ggtitle(label = "Has remote learning and/or Covid-19 restrictions negatively \n impacted your mental health (including feelings \n of sadness, depression, loneliness, stress, etc.) \n [Fifth-Year+ Students]*") +
+          labs(caption = "*60.6% of responding fifth-year+ students believe that remote learning \n and/or Covid-19 restrictions have negatively imacted their mental health") + theme(aspect.ratio = 1, plot.title = element_text(hjust = 0.25, vjust = -2.25, size = 16, face = "bold"), legend.title = element_text(size = 0), plot.caption = element_text(hjust = 0.05, vjust = 8, size = 10, face = "bold"), legend.text = element_text(size = 12))
+```
+
+#Q15: To what extent do you agree with the following statement: Covid-19 Restrictions (including online classes, remote learning, staying isolated) have impacted my education (including GPA, Major, higher education decisions, etc.).
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+colorVector6 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50")
+
+#overall
+overaallEduImpact <- covid %>% filter(X..ImportId...QID16.. != '') %>% select(X..ImportId...QID16..)
+overaallEduImpact <- as.data.frame(table(overaallEduImpact))
+overaallEduImpact$Freq <- overaallEduImpact$Freq/sum(overaallEduImpact$Freq)
+count.data.overalledu <- overaallEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.overalledu)[1] <- "Response"
+count.data.overalledu$Response <- factor(count.data.Chass$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#CHASS
+chassEduImpact <- covid %>% filter(X..ImportId...QID3.. == "CHASS", X..ImportId...QID16.. != '') %>% select(X..ImportId...QID16..)
+chassEduImpact <- as.data.frame(table(chassEduImpact))
+chassEduImpact$Freq <- chassEduImpact$Freq/sum(chassEduImpact$Freq)
+count.data.Chass <- chassEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.Chass)[1] <- "Response"
+count.data.Chass$Response <- factor(count.data.Chass$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#BCOE
+bcoeEduImpact <- covid %>% filter(X..ImportId...QID3.. == "BCOE", X..ImportId...QID16.. != '') %>% select(X..ImportId...QID16..)
+bcoeEduImpact <- as.data.frame(table(bcoeEduImpact))
+bcoeEduImpact$Freq <- bcoeEduImpact$Freq/sum(bcoeEduImpact$Freq)
+count.data.bcoe <- bcoeEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.bcoe)[1] <- "Response"
+count.data.bcoe$Response <- factor(count.data.bcoe$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#CNAS
+cnasEduImpact <- covid %>% filter(X..ImportId...QID3.. == "CNAS", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+cnasEduImpact <- as.data.frame(table(cnasEduImpact))
+cnasEduImpact$Freq <- cnasEduImpact$Freq/sum(cnasEduImpact$Freq)
+count.data.cnas <- cnasEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.cnas)[1] <- "Response"
+count.data.cnas$Response <- factor(count.data.cnas$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#School of Business
+sobEduImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Business", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+sobEduImpact <- as.data.frame(table(sobEduImpact))
+sobEduImpact$Freq <- sobEduImpact$Freq/sum(sobEduImpact$Freq)
+count.data.sob <- sobEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.sob)[1] <- "Response"
+count.data.sob$Response <- factor(count.data.sob$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#School of Education
+soeEduImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Education", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+soeEduImpact <- as.data.frame(table(soeEduImpact))
+soeEduImpact$Freq <- soeEduImpact$Freq/sum(soeEduImpact$Freq)
+count.data.soe <- soeEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.soe)[1] <- "Response"
+count.data.soe$Response <- factor(count.data.soe$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#School of Public Policy
+soppEduImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Public Policy", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+soppEduImpact <- as.data.frame(table(soppEduImpact))
+soppEduImpact$Freq <- soppEduImpact$Freq/sum(soppEduImpact$Freq)
+count.data.sopp <- soppEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.sopp)[1] <- "Response"
+count.data.sopp$Response <- factor(count.data.sopp$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+
+#first-year
+firstYearEduImpact <- covid %>% filter(X..ImportId...QID4.. == "1st", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+firstYearEduImpact <- as.data.frame(table(firstYearEduImpact))
+firstYearEduImpact$Freq <- firstYearEduImpact$Freq/sum(firstYearEduImpact$Freq)
+count.data.first <- firstYearEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.first)[1] <- "Response"
+count.data.first$Response <- factor(count.data.first$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#second-year
+secondYearEduImpact <- covid %>% filter(X..ImportId...QID4.. == "2nd", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+secondYearEduImpact <- as.data.frame(table(secondYearEduImpact))
+secondYearEduImpact$Freq <- secondYearEduImpact$Freq/sum(secondYearEduImpact$Freq)
+count.data.second <- secondYearEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.second)[1] <- "Response"
+count.data.second$Response <- factor(count.data.second$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#third-year
+thirdYearEduImpact <- covid %>% filter(X..ImportId...QID4.. == "3rd", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+thirdYearEduImpact <- as.data.frame(table(thirdYearEduImpact))
+thirdYearEduImpact$Freq <- thirdYearEduImpact$Freq/sum(thirdYearEduImpact$Freq)
+count.data.third <- thirdYearEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.third)[1] <- "Response"
+count.data.third$Response <- factor(count.data.third$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#fourth-year
+fourthYearEduImpact <- covid %>% filter(X..ImportId...QID4.. == "4th", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+fourthYearEduImpact <- as.data.frame(table(fourthYearEduImpact))
+fourthYearEduImpact$Freq <- fourthYearEduImpact$Freq/sum(fourthYearEduImpact$Freq)
+count.data.fourth <- fourthYearEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.fourth)[1] <- "Response"
+count.data.fourth$Response <- factor(count.data.fourth$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#fifth-year+
+fifthYearEduImpact <- covid %>% filter(X..ImportId...QID4.. == "5th (+)", X..ImportId...QID16.. != "") %>% select(X..ImportId...QID16..)
+fifthYearEduImpact <- as.data.frame(table(fifthYearEduImpact))
+fifthYearEduImpact$Freq <- fifthYearEduImpact$Freq/sum(fifthYearEduImpact$Freq)
+count.data.fifth <- fifthYearEduImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.fifth)[1] <- "Response"
+count.data.fifth$Response <- factor(count.data.fifth$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+#overall
+ggplot(data = count.data.overalledu, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [ALL RESPONDING STUDENTS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#CHASS
+ggplot(data = count.data.Chass, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [CHASS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#BCOE
+ggplot(data = count.data.bcoe, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [BCOE]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#CNAS
+ggplot(data = count.data.cnas, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [CNAS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#school of business
+ggplot(data = count.data.sob, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [School of Business]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#School of Education
+colorVector7 <- c("#B5CA8D", "#426B69", "#8BB174", "#222E50")
+ggplot(data = count.data.soe, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector7, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [School of Education]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#School of Public Policy
+colorVector8 <- c("#8BB174", "#B5CA8D", "#426B69", "#222E50")
+ggplot(data = count.data.sopp, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector8, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [School of Public Policy]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#first-years
+colorVector6 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50")
+colorVector7 <- c("#B5CA8D", "#426B69", "#8BB174", "#222E50")
+ggplot(data = count.data.first, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [First-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#second-years
+ggplot(data = count.data.second, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [Second-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#third-years
+ggplot(data = count.data.third, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [Third-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#fourth-years
+ggplot(data = count.data.fourth, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [Fourth-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#fifth-years
+ggplot(data = count.data.fifth, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my education (including GPA, Major, \n higher education decisions, etc.) [Fifth-Year+ Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+```
+
+#Q16: To what extent do you agree with the following statement: Covid-19 Restrictions (including online classes, remote learning, staying isolated) have impacted my future career plans (including career interest, job/internship availability, networking opportunities, etc.).
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+colorVector6 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50")
+colorVector8 <- c("#B5CA8D", "#8BB174", "#426B69")
+colorVector9 <- c("#426B69", "#B5CA8D", "#8BB174")
+
+#overall
+overallCarImpact <- covid %>% filter(X..ImportId...QID17.. != '') %>% select(X..ImportId...QID17..)
+overallCarImpact <- as.data.frame(table(overallCarImpact))
+overallCarImpact$Freq <- overallCarImpact$Freq/sum(overallCarImpact$Freq)
+count.data.overall.car <- overallCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.overall.car)[1] <- "Response"
+count.data.overall.car$Response <- factor(count.data.overall.car$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#CHASS
+chassCarImpact <- covid %>% filter(X..ImportId...QID3.. == "CHASS", X..ImportId...QID17.. != '') %>% select(X..ImportId...QID17..)
+chassCarImpact <- as.data.frame(table(chassCarImpact))
+chassCarImpact$Freq <- chassCarImpact$Freq/sum(chassCarImpact$Freq)
+count.data.Chass <- chassCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.Chass)[1] <- "Response"
+count.data.Chass$Response <- factor(count.data.Chass$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#BCOE
+bcoeCarImpact <- covid %>% filter(X..ImportId...QID3.. == "BCOE", X..ImportId...QID17.. != '') %>% select(X..ImportId...QID17..)
+bcoeCarImpact <- as.data.frame(table(bcoeCarImpact))
+bcoeCarImpact$Freq <- bcoeCarImpact$Freq/sum(bcoeCarImpact$Freq)
+count.data.bcoe <- bcoeCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.bcoe)[1] <- "Response"
+count.data.bcoe$Response <- factor(count.data.bcoe$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#CNAS
+cnasCarImpact <- covid %>% filter(X..ImportId...QID3.. == "CNAS", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+cnasCarImpact <- as.data.frame(table(cnasCarImpact))
+cnasCarImpact$Freq <- cnasCarImpact$Freq/sum(cnasCarImpact$Freq)
+count.data.cnas <- cnasCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.cnas)[1] <- "Response"
+count.data.cnas$Response <- factor(count.data.cnas$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#School of Business
+sobCarImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Business", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+sobCarImpact <- as.data.frame(table(sobCarImpact))
+sobCarImpact$Freq <- sobCarImpact$Freq/sum(sobCarImpact$Freq)
+count.data.sob <- sobCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.sob)[1] <- "Response"
+count.data.sob$Response <- factor(count.data.sob$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#School of Education
+soeCarImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Education", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+soeCarImpact <- as.data.frame(table(soeCarImpact))
+soeCarImpact$Freq <- soeCarImpact$Freq/sum(soeCarImpact$Freq)
+count.data.soe <- soeCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.soe)[1] <- "Response"
+count.data.soe$Response <- factor(count.data.soe$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#School of Public Policy
+soppCarImpact <- covid %>% filter(X..ImportId...QID3.. == "School of Public Policy", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+soppCarImpact <- as.data.frame(table(soppCarImpact))
+soppCarImpact$Freq <- soppCarImpact$Freq/sum(soppCarImpact$Freq)
+count.data.sopp <- soppCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.sopp)[1] <- "Response"
+count.data.sopp$Response <- factor(count.data.sopp$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+
+#first-year
+firstYearCarImpact <- covid %>% filter(X..ImportId...QID4.. == "1st", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+firstYearCarImpact <- as.data.frame(table(firstYearCarImpact))
+firstYearCarImpact$Freq <- firstYearCarImpact$Freq/sum(firstYearCarImpact$Freq)
+count.data.first <- firstYearCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.first)[1] <- "Response"
+count.data.first$Response <- factor(count.data.first$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#second-year
+secondYearCarImpact <- covid %>% filter(X..ImportId...QID4.. == "2nd", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+secondYearCarImpact <- as.data.frame(table(secondYearCarImpact))
+secondYearCarImpact$Freq <- secondYearCarImpact$Freq/sum(secondYearCarImpact$Freq)
+count.data.second <- secondYearCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.second)[1] <- "Response"
+count.data.second$Response <- factor(count.data.second$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#third-year
+thirdYearCarImpact <- covid %>% filter(X..ImportId...QID4.. == "3rd", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+thirdYearCarImpact <- as.data.frame(table(thirdYearCarImpact))
+thirdYearCarImpact$Freq <- thirdYearCarImpact$Freq/sum(thirdYearCarImpact$Freq)
+count.data.third <- thirdYearCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.third)[1] <- "Response"
+count.data.third$Response <- factor(count.data.third$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#fourth-year
+fourthYearCarImpact <- covid %>% filter(X..ImportId...QID4.. == "4th", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+fourthYearCarImpact <- as.data.frame(table(fourthYearCarImpact))
+fourthYearCarImpact$Freq <- fourthYearCarImpact$Freq/sum(fourthYearCarImpact$Freq)
+count.data.fourth <- fourthYearCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.fourth)[1] <- "Response"
+count.data.fourth$Response <- factor(count.data.fourth$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+
+#fifth-year+
+fifthYearCarImpact <- covid %>% filter(X..ImportId...QID4.. == "5th (+)", X..ImportId...QID17.. != "") %>% select(X..ImportId...QID17..)
+fifthYearCarImpact <- as.data.frame(table(fifthYearCarImpact))
+fifthYearCarImpact$Freq <- fifthYearCarImpact$Freq/sum(fifthYearCarImpact$Freq)
+count.data.fifth <- fifthYearCarImpact %>%
+  arrange(desc(Freq)) %>%
+  mutate(lab.ypos = cumsum(Freq) - 0.3*Freq)
+names(count.data.fifth)[1] <- "Response"
+count.data.fifth$Response <- factor(count.data.fifth$Response, levels = c("Unsure", "Not at all", "Somewhat", "A lot"))
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+#overall
+ggplot(data = count.data.overall.car, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, \n job/internship availability, networking opportunities, etc.) \n [ALL RESPONDING STUDENTS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#CHASS
+ggplot(data = count.data.Chass, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, \n job/internship availability, networking opportunities, etc.) [CHASS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#BCOE
+ggplot(data = count.data.bcoe, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, \n job/internship availability, networking opportunities, etc.) [BCOE]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#CNAS
+ggplot(data = count.data.cnas, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, \n job/internship availability, networking opportunities, etc.) [CNAS]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 14, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#school of business
+ggplot(data = count.data.sob, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) have \n impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [School of Business]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#School of Education
+colorVector7 <- c("#B5CA8D", "#426B69", "#8BB174", "#222E50")
+ggplot(data = count.data.soe, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector9, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) have \n impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [School of Education]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold') + geom_text(aes(x='Unsure', y = 0), label = "0%") + scale_x_discrete(drop=FALSE)
+
+#School of Public Policy
+colorVector9 <- c("#B5CA8D", "#8BB174", "#426B69")
+ggplot(data = count.data.sopp, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector9, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) have \n impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [School of Public Policy]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold') + geom_text(aes(x='Unsure', y = 0), label = "0%") + scale_x_discrete(drop=FALSE)
+
+#first-years
+colorVector6 <- c("#B5CA8D", "#8BB174", "#426B69", "#222E50")
+colorVector7 <- c("#B5CA8D", "#426B69", "#8BB174", "#222E50")
+ggplot(data = count.data.first, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector7, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [First-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#second-years
+ggplot(data = count.data.second, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [Second-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#third-years
+ggplot(data = count.data.third, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [Third-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#fourth-years
+ggplot(data = count.data.fourth, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [Fourth-Year Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+
+#fifth-years
+ggplot(data = count.data.fifth, mapping = aes(x = Response, y = Freq)) +
+  geom_bar(fill = colorVector6, stat = "identity") + ggtitle("To what extent do you agree with the following statement: Covid-19 \n Restrictions (including online classes, remote learning, staying isolated) \n have impacted my future career plans (including career interest, job/internship \n availability, networking opportunities, etc.) [Fifth-Year+ Students]") +
+  xlab("Response") +
+  ylab("Count") +
+  theme(axis.text.x=element_text(color = "black", size=11, vjust = 0.8), axis.text.y=element_text(color = "black", size=10, vjust = 0.8), plot.title = element_text(hjust = 0.3, size = 13, face = "bold"), legend.title = element_text(size = 8, face = "bold"), axis.title.x = element_text(size = 11, face = "bold"), axis.title.y = element_text(size = 11, face = "bold"), plot.subtitle = element_text(size = 11, hjust = 0.3), legend.key.size = unit(0.4, 'cm'), legend.key.height = unit(0.4, 'cm'), legend.key.width = unit(0.4, 'cm'), legend.text = element_text(size=7)) +
+geom_text(aes(x = Response, y = Freq + 0.015, label = paste(round(Freq, 3)*100, '%')), size = 4, color = 'black', face = 'bold')
+```
